@@ -1,0 +1,38 @@
+[
+    {
+        "url": "https://www.fbo.gov/notices/48cd6471d075f19826957e6796642036",
+        "predictions": {
+            "RED": 0.8804751299183371,
+            "YELLOW": 0.0,
+            "GREEN": 0.11952487008166295
+        },
+        "agency": "Department of the Army"
+    },
+    {
+        "url": "https://www.fbo.gov/spg/DLA/J3/DSCR-BSM/SPE4A517R0244/listing.html",
+        "predictions": {
+            "RED": 0.9328136599851522,
+            "YELLOW": 0.0,
+            "GREEN": 0.06718634001484783
+        },
+        "agency": "Defense Logistics Agency"
+    },
+    {
+        "url": "https://www.fbo.gov/spg/DLA/J3/DSCR-BSM/SPE4A517R0245/listing.html",
+        "predictions": {
+            "RED": 0.9398663697104678,
+            "YELLOW": 0.0601336302895323,
+            "GREEN": 0.0
+        },
+        "agency": "Defense Logistics Agency"
+    },
+    {
+        "url": "https://www.fbo.gov/spg/DON/USMC/M00264/M00264-17-R-1000/listing.html",
+        "predictions": {
+            "RED": 1.0,
+            "YELLOW": 0.0,
+            "GREEN": 0.0
+        },
+        "agency": "Department of the Navy"
+    }
+]

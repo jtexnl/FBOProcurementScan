@@ -1,0 +1,45 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'install', 'tools.js' ]
+2 info using npm@2.8.4
+3 info using node@v0.12.2
+4 verbose node symlink /usr/local/bin/node
+5 verbose install initial load of /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/package.json
+6 verbose installManyTop reading scoped package data from /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/node_modules/event-stream/package.json
+7 verbose installManyTop reading scoped package data from /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/node_modules/moment/package.json
+8 verbose installManyTop reading scoped package data from /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/node_modules/string/package.json
+9 verbose installManyTop reading scoped package data from /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/node_modules/tools/package.json
+10 verbose installManyTop reading scoped package data from /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/node_modules/underscore/package.json
+11 warn package.json tools@0.0.0 No README data
+12 verbose readDependencies loading dependencies from /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/package.json
+13 silly cache add args [ 'tools.js', null ]
+14 verbose cache add spec tools.js
+15 silly cache add parsed spec { raw: 'tools.js',
+15 silly cache add   scope: null,
+15 silly cache add   name: null,
+15 silly cache add   rawSpec: 'tools.js',
+15 silly cache add   spec: '/Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/tools.js',
+15 silly cache add   type: 'local' }
+16 silly addLocalTarball shasum (computed) 8e1e392c9ee0fbdbb6245b57a0eb6b49a6067c83
+17 verbose addTmpTarball /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/tools.js not in flight; adding
+18 verbose addTmpTarball validating metadata from /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/tools.js
+19 verbose tar unpack /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/tools.js
+20 verbose tar unpacking to /var/folders/m5/3cbxryh57kqc85_yrxq0_j300000gp/T/npm-55959-b707cc09/unpack-5a15168c21d1
+21 silly gentlyRm /var/folders/m5/3cbxryh57kqc85_yrxq0_j300000gp/T/npm-55959-b707cc09/unpack-5a15168c21d1 is being purged
+22 verbose gentlyRm don't care about contents; nuking /var/folders/m5/3cbxryh57kqc85_yrxq0_j300000gp/T/npm-55959-b707cc09/unpack-5a15168c21d1
+23 silly gunzTarPerm modes [ '755', '644' ]
+24 error not a package /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/tools.js
+25 error addLocal Could not install /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts/tools.js
+26 verbose stack Error: ENOENT, open '/var/folders/m5/3cbxryh57kqc85_yrxq0_j300000gp/T/npm-55959-b707cc09/unpack-5a15168c21d1/package.json'
+26 verbose stack     at Error (native)
+27 verbose cwd /Users/JohnTindel/Documents/Work/dataLibrary/FBOScanner/scripts
+28 error Darwin 14.4.0
+29 error argv "node" "/usr/local/bin/npm" "install" "tools.js"
+30 error node v0.12.2
+31 error npm  v2.8.4
+32 error path /var/folders/m5/3cbxryh57kqc85_yrxq0_j300000gp/T/npm-55959-b707cc09/unpack-5a15168c21d1/package.json
+33 error code ENOENT
+34 error errno -2
+35 error enoent ENOENT, open '/var/folders/m5/3cbxryh57kqc85_yrxq0_j300000gp/T/npm-55959-b707cc09/unpack-5a15168c21d1/package.json'
+35 error enoent This is most likely not a problem with npm itself
+35 error enoent and is related to npm not being able to find a file.
+36 verbose exit [ -2, true ]
