@@ -8,18 +8,21 @@ import rejectList
 
 
 class dataDict():
+    
     def __init__ (self):
         self.directory = os.listdir()
         self.directoryFiles = self.findRelevantFiles(self.directory)
         self.grades = self.buildGradesArray(self.directoryFiles)
         self.paths = self.buildPathsArray(self.directoryFiles)
         self.contents = self.buildContentsList(self.directoryFiles)
+        
     def findRelevantFiles(self, directory):
         relevant = []
         for fileName in self.directory:
             if fileName[-3:] == 'txt':
                 relevant.append(fileName)
         return relevant
+    
     def buildGradesArray(self, directoryFiles):
         grades = []
         for i in directoryFiles:
@@ -33,6 +36,7 @@ class dataDict():
             grades.append(gradeNum)
         gradeArray = np.asarray(grades)
         return gradeArray
+    
     def buildPathsArray(self, directoryFiles):
         paths = []
         for i in directoryFiles:
@@ -40,6 +44,7 @@ class dataDict():
             paths.append(path)
         pathArray = np.asarray(paths)
         return pathArray
+    
     def buildContentsList(self, directoryFiles):
         contentsList = []
         counter = 0
