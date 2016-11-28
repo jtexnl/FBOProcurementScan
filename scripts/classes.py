@@ -22,7 +22,7 @@ class dailySolicitationListing():
     
     def __init__(self):
         self.date = (datetime.today() - timedelta(days=1)).strftime("%Y%m%d")
-        self.fileName = 'workfiles/prepped_notices.' + str(self.date) + '.json'
+        self.fileName = 'pull/workfiles/prepped_notices.' + str(self.date) + '.json'
         self.raw = self.open_and_parse(self.fileName)
         self.urls = self.make_url_list(self.raw)
 
@@ -133,7 +133,7 @@ class formattedPredictionOutput():
         self.finalOutput = self.combine_information()
 
     def load_accuracy_dict(self):
-        with open('modelAccuracy.json', 'rU') as infile:
+        with open('accuracy_scores/modelAccuracy.json', 'rU') as infile:
             data = json.load(infile)
         return data
 
@@ -195,3 +195,31 @@ class formattedPredictionOutput():
             subDict['predictions'] = self.gradesBySolicitation[i]
             finalOutput.append(subDict)
         return finalOutput
+
+#This class loads all of the binaries for making predictions, vectorizes the data from the new solictation inputs, and yields predictions
+class predictionGenerator():
+
+    def __init__(self, inputData):
+        #Load the algorithm binaries
+        self.algorithms = {'ridge' : joblib.load('ridge.pkl'),'nearestCentroid' : joblib.load('nearestCentroid.pkl'), 
+        'L2SVC' : joblib.load('L2SVC.pkl'), 'BNB' : joblib.load('BNB.pkl'), 'knn' : joblib.load('knn.pkl'),
+        'perceptron' : joblib.load('perceptron.pkl'), 'pipeline' : joblib.load('pipeline.pkl'), 'L2SGD' : joblib.load('L2SGD.pkl'), 
+        'elasticNet' : joblib.load('elasticNet.pkl'), 'L1SVC' : joblib.load('L1SVC.pkl'), 'MNB' : joblib.load('MNB.pkl'), 
+        'L1SGD' : joblib.load('L1SGD.pkl'), 'passiveAggressive' : joblib.load('passiveAggressive.pkl'),
+        'randomForest' : joblib.load('randomForest.pkl')}
+        #Load the vectorizer. Note that you should use the same vectorizer that was used in training the models, otherwise your matrices will be of the wrong shape
+        self.vectorizer = joblib.load('vectorizer.pkl')
+        #vectorize the input data. 
+        self.vectorizedData = self.vectorize_data(inputData)
+        #run the generatePredictions() function, yielding an array of predictions for each algorithm in self.algorithms
+        self.predictionSet = self.generate_predictions(self.algorithms, self.vectorizedData)
+    
+    def vectorize_data(self, inputData):
+        return self.vectorizer.transform(inputData)
+    
+    def generate_predictions(self, algorithms, vectorizedData):
+        #creates a dictionary with algorithms as keys and their corresponding prediction arrays as values
+        predictionDict = {}
+        for algorithmName, algorithm in self.algorithms.items():
+            predictionDict[algorithmName] = algorithm.predict(vectorizedData)
+        return predictionDict
