@@ -16,6 +16,9 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.stop_words import ENGLISH_STOP_WORDS
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.externals import joblib
+import numpy as np
+import random
+import rejectList
 
 #The daily solicitation listing class is used to open the files from 
 class dailySolicitationListing():
@@ -55,7 +58,7 @@ class newSolicitation():
         self.url = inputList[index]['listing_url']
         self.agency = inputList[index]['agency']
         self.attachments = self.collect_link_attrs(self.url)
-        self.rawContents = self.parseAttachments(self.attachments)
+        self.rawContents = self.parse_attachments(self.attachments)
         self.tokenized = self.tokenize(self.rawContents)
 
     def collect_link_attrs(self, url):
@@ -75,7 +78,7 @@ class newSolicitation():
                 attachments.append(addl_info_link.attr('href'))
         return attachments
 
-    def parseAttachments(self, attachments):
+    def parse_attachments(self, attachments):
         os.mkdir('temp')
         os.chdir('temp')
         for attachment in self.attachments:
@@ -223,3 +226,54 @@ class predictionGenerator():
         for algorithmName, algorithm in self.algorithms.items():
             predictionDict[algorithmName] = algorithm.predict(vectorizedData)
         return predictionDict
+
+class dataDict():
+    
+    def __init__ (self):
+        self.directory = os.listdir('./gradedFiles')
+        self.directoryFiles = self.findRelevantFiles(self.directory)
+        self.grades = self.buildGradesArray(self.directoryFiles)
+        self.paths = self.buildPathsArray(self.directoryFiles)
+        self.contents = self.buildContentsList(self.directoryFiles)
+        
+    def findRelevantFiles(self, directory):
+        relevant = []
+        for fileName in self.directory:
+            if fileName[-3:] == 'txt':
+                relevant.append(fileName)
+        return relevant
+    
+    def buildGradesArray(self, directoryFiles):
+        grades = []
+        for i in directoryFiles:
+            grade = i.split('_')[0]
+            if grade == 'GREEN':
+                gradeNum = 2
+            elif grade == 'YELLOW':
+                gradeNum = 1
+            else:
+                gradeNum = 0
+            grades.append(gradeNum)
+        gradeArray = np.asarray(grades)
+        return gradeArray
+    
+    def buildPathsArray(self, directoryFiles):
+        paths = []
+        for i in directoryFiles:
+            path = os.getcwd() + '/' + i
+            paths.append(path)
+        pathArray = np.asarray(paths)
+        return pathArray
+    
+    def buildContentsList(self, directoryFiles):
+        contentsList = []
+        counter = 0
+        for fileName in os.listdir():
+            if fileName[-3:] == 'txt':
+                print('processing: ' + str(counter) + ' Name: ' + fileName )
+                counter += 1
+                raw = open(fileName, encoding = 'Latin-1').read()
+                clean1 = dataHandling.transform_for_classifier(raw)
+                clean = rejectList.cleanUpText(clean1, rejectList.rejectList)
+                contentsList.append(clean)
+        return contentsList
