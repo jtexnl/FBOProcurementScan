@@ -2,6 +2,7 @@ import re
 import string
 import random
 import numpy as np
+import json
 
 def remove_punctuation(text):
     regex = re.compile('[%s]' % re.escape(string.punctuation))
