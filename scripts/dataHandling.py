@@ -47,3 +47,13 @@ def make_train_test(inputDict, testPct):
     testDict = make_sub_dict(inputDict, testIndex)
     trainDict = make_sub_dict(inputDict, trainIndex)
     return trainDict, testDict
+
+def kfolds_split(dataDict, numFolds):
+    dataSetLength = len(dataDict['data'])
+    indexArray = list(range(0, dataSetLength))
+    random.shuffle(indexArray)
+    return np.array_split(indexArray, numFolds)
+
+def writeJson(inputData, fileName):
+    with open(fileName, 'w+') as outfile:
+        json.dump(inputData, outfile, indent = 4)
