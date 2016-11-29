@@ -20,7 +20,7 @@ import numpy as np
 import random
 import rejectList
 
-#The daily solicitation listing class is used to open the files from 
+#The daily solicitation listing class is used to open the json file from fedbizopps
 class dailySolicitationListing():
     
     def __init__(self):
@@ -61,6 +61,8 @@ class newSolicitation():
         self.rawContents = self.parse_attachments(self.attachments)
         self.tokenized = self.tokenize(self.rawContents)
 
+    #This function looks for the documents listed on the page
+    #TODO: this function can likely be improved so that it misses fewer documents. There are several locations on the page where the document could be
     def collect_link_attrs(self, url):
         doc = pq(url)
         attachments = []
@@ -78,6 +80,7 @@ class newSolicitation():
                 attachments.append(addl_info_link.attr('href'))
         return attachments
 
+    #creates a temporary directory, downloads all of the attachments into the directory, and parses them into raw text data
     def parse_attachments(self, attachments):
         os.mkdir('temp')
         os.chdir('temp')
@@ -101,7 +104,8 @@ class newSolicitation():
         if 'temp' in os.listdir():
             os.system('rm -r temp')
         return final
-        
+    
+    #tokenizes and lemmatizes the raw data for NLP processing
     def tokenize(self, text):
         cleaned = dataHandling.transform_for_classifier(text)
         tokens = parser(cleaned)
@@ -124,6 +128,8 @@ class newSolicitation():
         tokenized = ' '.join(tokenStrings)
         return tokenized
 
+#This class combines the information from the raw json FBO data with the predictor outputs and returns
+#a dictionary that can be easily written to json.
 class formattedPredictionOutput():
 
     def __init__(self, rawPredictions, solicitationList):
@@ -204,12 +210,12 @@ class predictionGenerator():
 
     def __init__(self, inputData):
         #Load the algorithm binaries
-        self.algorithms = {'ridge' : joblib.load('ridge.pkl'),'nearestCentroid' : joblib.load('nearestCentroid.pkl'), 
-        'L2SVC' : joblib.load('L2SVC.pkl'), 'BNB' : joblib.load('BNB.pkl'), 'knn' : joblib.load('knn.pkl'),
-        'perceptron' : joblib.load('perceptron.pkl'), 'pipeline' : joblib.load('pipeline.pkl'), 'L2SGD' : joblib.load('L2SGD.pkl'), 
-        'elasticNet' : joblib.load('elasticNet.pkl'), 'L1SVC' : joblib.load('L1SVC.pkl'), 'MNB' : joblib.load('MNB.pkl'), 
-        'L1SGD' : joblib.load('L1SGD.pkl'), 'passiveAggressive' : joblib.load('passiveAggressive.pkl'),
-        'randomForest' : joblib.load('randomForest.pkl')}
+        self.algorithms = {'ridge' : joblib.load('binaries/ridge.pkl'),'nearestCentroid' : joblib.load('binaries/nearestCentroid.pkl'), 
+        'L2SVC' : joblib.load('binaries/L2SVC.pkl'), 'BNB' : joblib.load('binaries/BNB.pkl'), 'knn' : joblib.load('binaries/knn.pkl'),
+        'perceptron' : joblib.load('perceptron.pkl'), 'pipeline' : joblib.load('binaries/pipeline.pkl'), 'L2SGD' : joblib.load('binaries/L2SGD.pkl'), 
+        'elasticNet' : joblib.load('binaries/elasticNet.pkl'), 'L1SVC' : joblib.load('binaries/L1SVC.pkl'), 'MNB' : joblib.load('binaries/MNB.pkl'), 
+        'L1SGD' : joblib.load('binaries/L1SGD.pkl'), 'passiveAggressive' : joblib.load('binaries/passiveAggressive.pkl'),
+        'randomForest' : joblib.load('binaries/randomForest.pkl')}
         #Load the vectorizer. Note that you should use the same vectorizer that was used in training the models, otherwise your matrices will be of the wrong shape
         self.vectorizer = joblib.load('vectorizer.pkl')
         #vectorize the input data. 
