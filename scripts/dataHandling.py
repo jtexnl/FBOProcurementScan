@@ -3,6 +3,13 @@ import string
 import random
 import numpy as np
 import json
+import classes
+from sklearn.externals import joblib
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn import metrics
+import pandas as pd
+from baseModel import classifiers, classifier_names
+from datetime import datetime
 
 def remove_punctuation(text):
     regex = re.compile('[%s]' % re.escape(string.punctuation))
@@ -58,3 +65,49 @@ def kfolds_split(dataDict, numFolds):
 def writeJson(inputData, fileName):
     with open(fileName, 'w+') as outfile:
         json.dump(inputData, outfile, indent = 4)
+
+def loadData():
+    data = classes.dataDict()
+    dataDict = {}
+    dataDict['DESCR'] = None 
+    dataDict['data'] = data.contents
+    dataDict['target_names'] = ['RED', 'YELLOW', 'GREEN']
+    dataDict['target'] = data.grades
+    dataDict['description'] = 'dataset of graded solicitations from 2009-2012'
+    return dataDict
+
+def kfolds_split(inputDict, numFolds):
+    dataSetLength = len(dataDict['data'])
+    indexArray = list(range(0, dataSetLength))
+    random.shuffle(indexArray)
+    return np.array_split(indexArray, numFolds)
+
+def test_model_accuracy(splits, dataSet):
+    results = {}
+    for i in range(0, len(splits)):
+        test_index = splits[i]
+        print('processing fold ' + str(i))
+        remaining = list(range(0, len(splits)))
+        remaining.remove(i)
+        train_index = []
+        for x in remaining:
+            train_index.append(splits[x])
+        train_index = np.concatenate(train_index)
+        data_train = dataHandling.makeSubDict(dataSet, test_index)
+        data_test = dataHandling.makeSubDict(dataSet, train_index)
+        y_train, y_test = data_train['target'], data_test['target']
+        vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5, stop_words='english')
+        X_train = vectorizer.fit_transform(data_train['data'])
+        X_test = vectorizer.transform(data_test['data'])
+        resultDict = {}
+        for j, clf in enumerate(classifiers):
+            clf.fit(X_train, y_train)
+            pred = clf.predict(X_test)
+            score = metrics.accuracy_score(y_test, pred)
+            resultDict[classifier_names[j]] = score
+        results[i] = resultDict
+    testOutput = pd.DataFrame.from_dict(results)
+    testOutput['avg'] = testOutput.mean(axis=1)
+    testOutput.to_csv('kfolds_model_accuracy_' + datetime.today().strftime("%Y%m%d") + '.csv')
+    t = testOutput[['avg']]
+    return t.to_dict()
