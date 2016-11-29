@@ -23,23 +23,24 @@ from sklearn import metrics
 import dataHandling
 import classes
 from baseModel import classifiers, classifier_names
+import datetime
 
 if __name__ == '__main__':
     #load the raw data files into a properly-formatted dictionary
     dataDict = dataHandling.loadData()
     #get the date
-    today = datetime.today().strftime('%Y%m%d')
+    today = datetime.datetime.today().strftime('%Y%m%d')
     #run k-folds cross-validation to derive accuracy scores
     #split the dataset; 5 pieces is the default, but not the rule necessarily
     splits = dataHandling.kfolds_split(dataDict, 5)
     accuracyDict = dataHandling.test_model_accuracy(splits, dataDict)
     #write the scores to a new accuracy json and pickle the dataset for persistence
-    writeJson(accuracyDict, 'accuracyDict_' + today + '.pkl')
-    joblib.dump(dataDict, 'dataDump_' + today + '.pkl')
+    writeJson(accuracyDict, 'accuracy_scores/accuracyDict_' + today + '.json')
+    joblib.dump(dataDict, 'binaries/dataDump_' + today + '.pkl')
     #vectorize the whole dataset and train the algorithms on the full dataset
     y = dataDict['target']
     vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5, stop_words='english')
-    joblib.dump(vectorizer, 'vectorizer.pkl')
+    joblib.dump(vectorizer, 'binaries/vectorizer.pkl')
     X = vectorizer.fit_transform(dataDict['data'])
     #dump the algorithms and vectorizer for re-use in prediction
     for i, clf in enumerate(classifiers):
