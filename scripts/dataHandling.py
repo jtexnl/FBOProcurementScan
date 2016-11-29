@@ -77,7 +77,7 @@ def loadData():
     return dataDict
 
 def kfolds_split(inputDict, numFolds):
-    dataSetLength = len(dataDict['data'])
+    dataSetLength = len(inputDict['data'])
     indexArray = list(range(0, dataSetLength))
     random.shuffle(indexArray)
     return np.array_split(indexArray, numFolds)
@@ -93,8 +93,8 @@ def test_model_accuracy(splits, dataSet):
         for x in remaining:
             train_index.append(splits[x])
         train_index = np.concatenate(train_index)
-        data_train = dataHandling.makeSubDict(dataSet, test_index)
-        data_test = dataHandling.makeSubDict(dataSet, train_index)
+        data_train = make_sub_dict(dataSet, test_index)
+        data_test = make_sub_dict(dataSet, train_index)
         y_train, y_test = data_train['target'], data_test['target']
         vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5, stop_words='english')
         X_train = vectorizer.fit_transform(data_train['data'])
