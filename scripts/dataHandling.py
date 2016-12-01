@@ -111,3 +111,18 @@ def test_model_accuracy(splits, dataSet):
     testOutput.to_csv('kfolds_model_accuracy_' + datetime.today().strftime("%Y%m%d") + '.csv')
     t = testOutput[['avg']]
     return t.to_dict()
+
+def convert_to_binary(dataDict):
+    new = {}
+    new['data'] = dataDict['data']
+    targetList = []
+    for i in dataDict['target']:
+        if i == 0:
+            targetList.append(i)
+        else:
+            targetList.append(1)
+    new['target'] = np.asarray(targetList)
+    new['target_names'] = ['RED', 'GREEN']
+    new['DESCR'] = dataDict['DESCR']
+    new['description'] = 'binary dataset of graded solicitations from 2009-2015'
+    return new
