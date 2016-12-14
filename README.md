@@ -20,3 +20,35 @@ The bulk of this program is written in Python 3.4.3. It has not been tested in a
 For document parsing, the program uses Textract, a Python library for parsing most types of documents into plain text. As of this writing, Textract is not optimized for use with Python 3.4.3, so you will need to make some edits to the base libraries to run this tool. Instructions to follow shortly.
 
 You will also need to have Node.js and npm installed on the machine that is running the software. Further instructions on this can be found in ```scripts/pull```.
+
+
+# Setup
+
+Setting up your environment to use this tool is not exactly straightforward, so I'm going to run through all of the steps required. For this example, I'm going to be documenting the steps I went through to set up this tool to run on an Ubuntu AWS EC2 Instance. Because of the size of the data being used, a micro instance is not recommended: you will need something with a larger amount of virtual memory. 
+
+I do not recommend attempting to set this tool up in a Windows environment. Several of the libraries are not optimized for the Windows OS and may require expensive programs like Visual Studio, in addition to complicated changes to the path variables. Setup is much more straightforward in a Unix-like environment. It may not be impossible for Windows, but I'm not going to go through the steps for doing that here. 
+
+First and foremost, once you're in your Ubuntu instance, update apt-get to make sure it's able to fetch the packages you're going to try and download later: 
+```sudo apt-get update```
+
+## Quick Setup
+If your environment is similar enough to the one I was working in, you can try to run the whole setup procedure by running my setup script. To do that, simply try:
+```bash setup.sh```
+There may be a couple of steps where you're asked to type 'yes' before proceeding, so pay attention to what's happening on the console as it runs through the installation script.
+If you notice warnings or failures in the console output, go through the manual setup below.
+
+## Manual Setup
+
+### Python
+You will need Python 3.4.3 or later to run this tool. Most systems come with Python 2.7x pre-installed, so you'll need to download Python 3.4.3+. To do this, run:
+```sudo apt-get install python3```
+As of this writing, the default install will be Python 3.5.2, which is fine for our purposes. With Python in place, you'll need to install your necessary Python libraries. To do this, you should download the Python package manager Pip. Some versions of Python ship with Pip, but you'll want to make sure that you have pip for Python 3; the default is for Python 2, so unless you download the correct version, the libraries will download to the root of Python 2 instead of Python 3, making it so that you can't import the libaries into Python 3. To get Pip for Python 3, type: 
+```sudo apt-get install --upgrade python3-pip```
+Once Pip is set up correctly, install the basic Python libraries you need by typing: 
+```sudo pip3 install -r --upgrade requirements.txt```
+You can also manually go through each library in requirements.txt to do the install if something breaks here, but it should hopefully work. 
+
+### NLTK and SpaCy
+There are two libraries used for Natural Language Processing in this  
+
+
