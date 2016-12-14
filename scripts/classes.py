@@ -82,7 +82,8 @@ class newSolicitation():
 
     #creates a temporary directory, downloads all of the attachments into the directory, and parses them into raw text data
     def parse_attachments(self, attachments):
-        os.mkdir('temp')
+        if not 'temp' in os.listdir():
+            os.mkdir('temp')
         os.chdir('temp')
         for attachment in self.attachments:
             try:
@@ -217,7 +218,7 @@ class predictionGenerator():
         'L1SGD' : joblib.load('binaries/L1SGD.pkl'), 'passiveAggressive' : joblib.load('binaries/passiveAggressive.pkl'),
         'randomForest' : joblib.load('binaries/randomForest.pkl')}
         #Load the vectorizer. Note that you should use the same vectorizer that was used in training the models, otherwise your matrices will be of the wrong shape
-        self.vectorizer = joblib.load('vectorizer.pkl')
+        self.vectorizer = joblib.load('binaries/vectorizer.pkl')
         #vectorize the input data. 
         self.vectorizedData = self.vectorize_data(inputData)
         #run the generatePredictions() function, yielding an array of predictions for each algorithm in self.algorithms
