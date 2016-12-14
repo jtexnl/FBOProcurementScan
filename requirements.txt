@@ -4,3 +4,7 @@ scipy
 nltk
 spacy
 setuptools
+sklearn
+BeautifulSoup4
+PyQuery
+requests

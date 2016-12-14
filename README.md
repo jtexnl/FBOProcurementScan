@@ -74,3 +74,6 @@ Textract is a utility that pulls data from documents and parses it into text. It
 ```sudo apt-get install lxml```
 5. Finally, instal Textract
 ```sudo pip3 install -U textract```
+
+### Conclusion
+That's it for your overall development setup, but also be sure that you correctly install the node dependencies in the ```pull/``` folder. Instructions are in the readme there. 
