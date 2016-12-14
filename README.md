@@ -28,6 +28,8 @@ Setting up your environment to use this tool is not exactly straightforward, so 
 
 I do not recommend attempting to set this tool up in a Windows environment. Several of the libraries are not optimized for the Windows OS and may require expensive programs like Visual Studio, in addition to complicated changes to the path variables. Setup is much more straightforward in a Unix-like environment. It may not be impossible for Windows, but I'm not going to go through the steps for doing that here. 
 
+If you would like to run this on your own machine, I'd recommend setting up a virtual environment using something like ```venv```. The setup here is for a server dedicated to this tool, so I won't be installing in a virtual environment.
+
 First and foremost, once you're in your Ubuntu instance, update apt-get to make sure it's able to fetch the packages you're going to try and download later: 
 ```sudo apt-get update```
 
@@ -49,6 +51,26 @@ Once Pip is set up correctly, install the basic Python libraries you need by typ
 You can also manually go through each library in requirements.txt to do the install if something breaks here, but it should hopefully work. 
 
 ### NLTK and SpaCy
-There are two libraries used for Natural Language Processing in this  
+There are two libraries used for Natural Language Processing in this tool, but both of them require an additional installation step that involves downloading their data sets (including things like stopwords and text corpora). To do this, run the following commands:
+```sudo python3 -m nltk.downloader all```
+```sudo python3 -m spacy.en.download all```
+These commands will take some time to run and will likely require you to confirm running the installation (as the installation will take up a good amount of disk space).
 
+### Curl and WGET
+Curl and WGET will be used by the script to fetch documents from websites. Your system likely already has these installed, but to be sure, enter:
+```sudo apt-get install curl```
+```sudo apt-get install wget```
 
+### Textract
+Textract is a utility that pulls data from documents and parses it into text. It has utilities for all types of documents and will at least try to parse everyting, so it has a LOT of dependencies (think OCR readers). This is the most fragile step, and you may need to do some troubleshooting on StackOverflow to make this work for your particular environment. Importantly, although textract is a Python package that you download with Pip, it expects all of the dependencies to already be in place, so you have to follow this download order or the installation will fail. This is what I did for my environment: 
+
+1. Install the developer libraries
+```sudo apt-get install python-dev libxml2-dev libxslt1-dev libjpeg-dev ```
+2. Install the CL utilities that Textract relies on
+```sudo apt-get install antiword unrtf poppler-utils pstotext tesseract-ocr flac ffmpeg lame libmad0 libsox-fmt-mp3 sox```
+3. Install a couple of other dev libraries (I don't know why these aren't in step 1, but this is what worked for me)
+```sudo apt-get install lib32z1-dev zlib1g-dev```
+4. Install lxml (necessary for parsing a lot of Microsoft document types)
+```sudo apt-get install lxml```
+5. Finally, instal Textract
+```sudo pip3 install -U textract```
