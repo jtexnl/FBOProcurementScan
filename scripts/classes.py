@@ -19,9 +19,13 @@ from sklearn.externals import joblib
 import numpy as np
 import random
 import rejectList
+import urllib3
+import string
+import shutil
 
-#The daily solicitation listing class is used to open the json file from fedbizopps
 class dailySolicitationListing():
+    #The daily solicitation listing class is used to open the json file from fedbizopps. 
+    #You must first run the bash utility 'fbo-nightly.sh' in the 'pull' folder in order to get the daily solicitation listing
     
     def __init__(self):
         self.date = (datetime.today() - timedelta(days=1)).strftime("%Y%m%d")
@@ -44,14 +48,12 @@ class dailySolicitationListing():
             urls.append(i['listing_url'])
         return urls
 
-#This class uses the dailySolicitationListing class and scrapes fedBizOpps for the documents. 
-#It then processes the documents and returns formatted data ready to be vectorized for classification
-fbo_base_url = 'https://www.fbo.gov'
-parser = English()
-STOPLIST = set(stopwords.words('english') + ['n\'t', '\'s', '\'m', 'ca'] + list(ENGLISH_STOP_WORDS))
-SYMBOLS = ' '.join(string.punctuation).split(' ') + ['-----', '---', '...', '“', '”', '\'ve']
+
+"""
 
 class newSolicitation():
+    #This class uses the dailySolicitationListing class and scrapes fedBizOpps for the documents. 
+    #It then processes the documents and returns formatted data ready to be vectorized for classification
 
     def __init__(self, inputList, index):
         self.dataFile = inputList[index]
@@ -129,9 +131,88 @@ class newSolicitation():
         tokenized = ' '.join(tokenStrings)
         return tokenized
 
-#This class combines the information from the raw json FBO data with the predictor outputs and returns
-#a dictionary that can be easily written to json.
+"""
+
+fbo_base_url = 'https://www.fbo.gov'
+parser = English()
+http = urllib3.PoolManager()
+
+class solicitation_documents():
+    #This class is intended to replace the old newSolicitation() class with a more efficient document fetching utility
+
+    def __init__(self, url, solNum):
+        self.doc = pq(url)
+        self.document_links = self.find_document_links(self.doc)
+        self.document_status_initial = self.download_documents(self.document_links, solNum)
+        self.doc_text, self.document_status_final = self.read_and_parse(self.document_status_initial, solNum)
+
+    def find_document_links(self, doc):
+        #takes a pyquery object, finds the links, and outputs them as a list. 
+        attachments = []
+        for div in doc('#dnf_class_values_procurement_notice__packages__widget > div.subform.readonly.subreadonly'):
+            try:
+                d = pq(div)
+                link_tag = d.find('div.file')('a') or d.find('div')('a')
+                attachments.append(link_tag.attr('href'))
+            except:
+                continue
+        if len(attachments) == 0:  # keep looking
+            addl_info_link = doc('div#dnf_class_values_procurement_notice__additional_info_link__widget')('a')
+            if addl_info_link:
+                attachments.append(addl_info_link.attr('href'))
+        return attachments
+
+    def download_documents(self, document_links, solNum):
+        #downloads the documents from the list of links. 
+        #returns a dictionary of the documents and whether they were successfully downloaded
+        document_status = {}
+        document_status['links_found'] = document_links
+        if len(document_links) > 0:
+            count = 0
+            for link in document_links:
+                target = dataHandling.form_url(link)
+                count += 1
+                r = http.request('GET', target, preload_content=False) 
+                fileName = r.__dict__['headers'].__dict__['_container']['content-disposition'][1].split('=')[-1].strip('"')
+                extension = fileName.split('.')[-1]
+                urllib.request.urlretrieve(target, 'solicitation_' + str(solNum) + '_document_' + str(count) + '.' + extension)
+            document_status['documents_downloaded'] = count
+        else:
+            document_status['documents_downloaded'] = 'No Document Links Found'
+        return document_status
+        
+    def read_and_parse(self, document_status, solNum):
+        output = ''
+        parsing_report = {}
+        for filename in os.listdir():
+            if filename.split('_')[1] == solNum:
+                try:
+                    t = textract.process(filename)
+                    t = str(t).replace('\\n', ' ').replace('\\t', ' ')
+                    if len(t) <= 100:
+                        parsing_report[filename] = 'processing error'
+                        continue
+                    else:
+                        table = str.maketrans({key: None for key in string.punctuation})
+                        no_punct = t.translate(table).lower()
+                        parsed = parser(no_punct)
+                        lemmas = []
+                        for token in parsed:
+                            lemmas.append(token.lemma_)
+                        final = ' '.join(i for i in lemmas)
+                        parsing_report[filename] = 'successfully parsed'
+                        output = output + ' ' + final
+                except:
+                    parsing_report[filename] = 'processing error'
+                    continue
+            else:
+                continue
+        document_status['parsing_report'] = parsing_report
+        return output, document_status
+
 class formattedPredictionOutput():
+    #This class combines the information from the raw json FBO data with the predictor outputs and returns
+    #a dictionary that can be easily written to json.
 
     def __init__(self, rawPredictions, solicitationList):
         self.rawPredictions = rawPredictions
@@ -206,8 +287,9 @@ class formattedPredictionOutput():
             finalOutput.append(subDict)
         return finalOutput
 
-#This class loads all of the binaries for making predictions, vectorizes the data from the new solictation inputs, and yields predictions
 class predictionGenerator():
+    #This class loads all of the binaries for making predictions, vectorizes the data from the new solictation inputs, and yields predictions
+    #TODO: add a function to pull only the most recent binaries. 
 
     def __init__(self, inputData):
         #Load the algorithm binaries
@@ -235,6 +317,7 @@ class predictionGenerator():
         return predictionDict
 
 class dataDict():
+    #This class is used when retraining the model. It should be instantiated in a directory containing the historical .txt files.
     
     def __init__ (self):
         self.directory = os.listdir('gradedFiles')

@@ -8,15 +8,20 @@ from sklearn.externals import joblib
 import numpy as np
 import json
 
+#Run the bash script to pull the most recent FBO Data Dump
+os.system('bash pull/fbo-nightly.sh')
+
 #Initialize the dailySolicitationListing class to get the list of new solicitations
 print('Loading raw data')
 rawData = classes.dailySolicitationListing()
 
 #Go through rawData and instatiate a newSolicitation() object for each line
+os.mkdir('temp_test')
+os.chdir('temp_test')
 print('scraping and parsing solicitation documents')
 solicitations = []
 for i in range(0, len(rawData.raw)):
-    solicitations.append(classes.newSolicitation(rawData.raw, i))
+    solicitations.append(classes.solicitation_documents(rawData.raw[i]['listing_url'], rawData.raw[i]['solnbr']))
 
 ### This section may not be necessary with the addition of predictionGenerator() object to classes. Check in.
 print('loading predictors')

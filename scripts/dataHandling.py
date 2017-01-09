@@ -11,6 +11,14 @@ import pandas as pd
 from baseModel import classifiers, classifier_names
 from datetime import datetime
 
+def form_url(inputURL):
+    if 'https://' in inputURL:
+        return inputURL
+    elif 'http://' in inputURL:
+        return inputURL
+    else:
+        return 'https://www.fbo.gov' + inputURL
+
 def remove_punctuation(text):
     regex = re.compile('[%s]' % re.escape(string.punctuation))
     s = regex.sub(' ', text)
