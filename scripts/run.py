@@ -15,14 +15,18 @@ os.system('bash pull/fbo-nightly.sh')
 print('Loading raw data')
 rawData = classes.dailySolicitationListing()
 
-#Go through rawData and instatiate a newSolicitation() object for each line
+#Create a new directory where the documents will be stored until parsed. This directory will be deleted at the end
 os.mkdir('temp_test')
+#Move into the temporary directory
 os.chdir('temp_test')
 print('scraping and parsing solicitation documents')
 solicitations = []
 for i in range(0, len(rawData.raw)):
+    print('processing ' + str(i))
     solicitations.append(classes.solicitation_documents(rawData.raw[i]['listing_url'], rawData.raw[i]['solnbr']))
 
+os.chdir('..')
+os.system('rm -r temp_test')
 ### This section may not be necessary with the addition of predictionGenerator() object to classes. Check in.
 print('loading predictors')
 ridge = joblib.load('binaries/ridge.pkl')
@@ -45,8 +49,8 @@ predictors = {'ridge':ridge, 'nearestCentroid':nearestCentroid, 'L2SVC':L2SVC, '
 predictionList = []
 for i in range(0, len(solicitations)):
     subDict = {}
-    subDict['url'] = solicitations[i].url
-    subDict['text'] = solicitations[i].tokenized
+    subDict['url'] = solicitations[i].document_status_final['parent_url']
+    subDict['text'] = solicitations[i].doc_text
     subDict['predictions'] = {}
     predictionList.append(subDict)
 

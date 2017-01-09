@@ -19,9 +19,12 @@ from sklearn.externals import joblib
 import numpy as np
 import random
 import rejectList
+import urllib
 import urllib3
 import string
 import shutil
+import certifi
+from urllib3.exceptions import SSLError
 
 class dailySolicitationListing():
     #The daily solicitation listing class is used to open the json file from fedbizopps. 
@@ -135,12 +138,13 @@ class newSolicitation():
 
 fbo_base_url = 'https://www.fbo.gov'
 parser = English()
-http = urllib3.PoolManager()
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
 class solicitation_documents():
     #This class is intended to replace the old newSolicitation() class with a more efficient document fetching utility
 
     def __init__(self, url, solNum):
+        self.url = url
         self.doc = pq(url)
         self.document_links = self.find_document_links(self.doc)
         self.document_status_initial = self.download_documents(self.document_links, solNum)
@@ -166,19 +170,33 @@ class solicitation_documents():
         #downloads the documents from the list of links. 
         #returns a dictionary of the documents and whether they were successfully downloaded
         document_status = {}
-        document_status['links_found'] = document_links
-        if len(document_links) > 0:
-            count = 0
-            for link in document_links:
-                target = dataHandling.form_url(link)
-                count += 1
-                r = http.request('GET', target, preload_content=False) 
-                fileName = r.__dict__['headers'].__dict__['_container']['content-disposition'][1].split('=')[-1].strip('"')
-                extension = fileName.split('.')[-1]
-                urllib.request.urlretrieve(target, 'solicitation_' + str(solNum) + '_document_' + str(count) + '.' + extension)
-            document_status['documents_downloaded'] = count
+        document_status['solicitation_number'] = solNum
+        document_status['parent_url'] = self.url
+        if document_links is None:
+            document_status['documents_downloaded'] = ['No Document Links Found']
         else:
-            document_status['documents_downloaded'] = 'No Document Links Found'
+            document_status['links_found'] = document_links
+            if len(document_links) > 0:
+                count = 0
+                for link in document_links:
+                    if link is None:
+                        continue
+                    else:
+                        target = dataHandling.form_url(link)
+                        count += 1
+                        try:
+                            r = http.request('GET', target, preload_content=False) 
+                            try:
+                                fileName = r.__dict__['headers'].__dict__['_container']['content-disposition'][1].split('=')[-1].strip('"')
+                                extension = fileName.split('.')[-1]
+                                urllib.request.urlretrieve(target, 'solicitation_' + str(solNum) + '_document_' + str(count) + '.' + extension)
+                                document_status['documents_downloaded'] = count
+                            except KeyError:
+                                document_status['documents_downloaded'] = ['Failed to Load']
+                        except SSLError:
+                            document_status['documents_downloaded'] = ['Insecure Redirect: Unable to Download']
+            else:
+                document_status['documents_downloaded'] = ['No Document Links Found']
         return document_status
         
     def read_and_parse(self, document_status, solNum):
