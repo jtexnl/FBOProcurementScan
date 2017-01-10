@@ -10,6 +10,7 @@ from sklearn import metrics
 import pandas as pd
 from baseModel import classifiers, classifier_names
 from datetime import datetime
+import algorithms
 
 def form_url(inputURL):
     if 'https://' in inputURL:
@@ -108,11 +109,11 @@ def test_model_accuracy(splits, dataSet):
         X_train = vectorizer.fit_transform(data_train['data'])
         X_test = vectorizer.transform(data_test['data'])
         resultDict = {}
-        for j, clf in enumerate(classifiers):
+        for j, clf in enumerate(algorithms.classifiers):
             clf.fit(X_train, y_train)
             pred = clf.predict(X_test)
             score = metrics.accuracy_score(y_test, pred)
-            resultDict[classifier_names[j]] = score
+            resultDict[algorithms.classifier_names[j]] = score
         results[i] = resultDict
     testOutput = pd.DataFrame.from_dict(results)
     testOutput['avg'] = testOutput.mean(axis=1)
