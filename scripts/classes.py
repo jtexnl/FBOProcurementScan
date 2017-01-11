@@ -320,7 +320,7 @@ class formattedPredictionOutput():
         for i in range(0, len(self.solicitationList)):
             subDict = {}
             subDict['url'] = self.solicitationList[i].url
-            subDict['metaData'] = self.solicitationList[i].finalOutput
+            subDict['metaData'] = self.solicitationList[i].final_output
             subDict['predictions'] = self.gradesBySolicitation[i]
             finalOutput.append(subDict)
         return finalOutput
