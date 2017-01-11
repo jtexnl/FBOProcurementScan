@@ -8,7 +8,6 @@ from sklearn.externals import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn import metrics
 import pandas as pd
-from baseModel import classifiers, classifier_names
 from datetime import datetime
 import algorithms
 
