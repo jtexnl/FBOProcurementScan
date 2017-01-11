@@ -270,7 +270,7 @@ class formattedPredictionOutput():
 
     def convert_to_qualitative(self, rawPredictions):
         newDict = {}
-        for key in list(self.accuracyDict.keys()):
+        for key in list(self.accuracyDict['avg'].keys()):
             subDict = {}
             subDict['accuracy'] = self.accuracyDict[key]
             valueList = list(rawPredictions[key])
@@ -320,7 +320,7 @@ class formattedPredictionOutput():
         for i in range(0, len(self.solicitationList)):
             subDict = {}
             subDict['url'] = self.solicitationList[i].url
-            #subDict['agency'] = self.solicitationList[i].agency
+            subDict['metaData'] = self.solicitationList[i]['finalOutput']
             subDict['predictions'] = self.gradesBySolicitation[i]
             finalOutput.append(subDict)
         return finalOutput
