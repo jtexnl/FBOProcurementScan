@@ -151,7 +151,7 @@ class solicitation_documents():
         self.doc = pq(self.url)
         self.document_links = self.find_document_links(self.doc)
         self.document_status_initial = self.download_documents(self.document_links, self.solNum)
-        self.doc_text, self.document_status_final = self.read_and_parse(self.document_status_initial, solNum)
+        self.doc_text, self.document_status_final = self.read_and_parse(self.document_status_initial, self.solNum)
         self.final_output = self.build_final_output(self.metaData, self.doc_text, self.document_status_final)
 
     def build_metaData(self, rawField):
