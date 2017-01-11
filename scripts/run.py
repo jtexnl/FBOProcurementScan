@@ -22,29 +22,33 @@ os.chdir('temp_test')
 print('scraping and parsing solicitation documents')
 solicitations = []
 for i in range(0, len(rawData.raw)):
-    print('processing ' + str(i))
-    solicitations.append(classes.solicitation_documents(rawData.raw[i]['listing_url'], rawData.raw[i]['solnbr']))
+    print('scraping solicitation number ' + str(i) + ' for documents')
+    solicitations.append(classes.solicitation_documents(rawData.raw[i]))
 
 os.chdir('..')
 os.system('rm -r temp_test')
+latest_update = open('latest_update.txt').read()
 ### This section may not be necessary with the addition of predictionGenerator() object to classes. Check in.
 print('loading predictors')
-ridge = joblib.load('binaries/ridge.pkl')
-nearestCentroid = joblib.load('binaries/nearestCentroid.pkl')
-L2SVC = joblib.load('binaries/L2SVC.pkl')
-BNB = joblib.load('binaries/BNB.pkl')
-knn = joblib.load('binaries/knn.pkl')
-perceptron = joblib.load('binaries/perceptron.pkl')
-pipeline = joblib.load('binaries/pipeline.pkl')
-L2SGD = joblib.load('binaries/L2SGD.pkl')
-elasticNet = joblib.load('binaries/elasticNet.pkl')
-L1SVC = joblib.load('binaries/L1SVC.pkl')
-MNB = joblib.load('binaries/MNB.pkl')
-L1SGD = joblib.load('binaries/L1SGD.pkl')
-passiveAggressive = joblib.load('binaries/passiveAggressive.pkl')
-randomForest = joblib.load('binaries/randomForest.pkl')
+ridge = joblib.load('binaries/' + latest_update + '/ridge.pkl')
+logit = joblib.load('binaries/' + latest_update + '/logit.pkl')
+nearestCentroid = joblib.load('binaries/' + latest_update + '/nearestCentroid.pkl')
+L2SVC = joblib.load('binaries/' + latest_update + '/L2SVC.pkl')
+BNB = joblib.load('binaries/' + latest_update + '/BNB.pkl')
+knn = joblib.load('binaries/' + latest_update + '/knn.pkl')
+perceptron = joblib.load('binaries/' + latest_update + '/perceptron.pkl')
+pipeline = joblib.load('binaries/' + latest_update + '/pipeline.pkl')
+L2SGD = joblib.load('binaries/' + latest_update + '/L2SGD.pkl')
+elasticNet = joblib.load('binaries/' + latest_update + '/elasticNet.pkl')
+L1SVC = joblib.load('binaries/' + latest_update + '/L1SVC.pkl')
+MNB = joblib.load('binaries/' + latest_update + '/MNB.pkl')
+L1SGD = joblib.load('binaries/' + latest_update + '/L1SGD.pkl')
+passiveAggressive = joblib.load('binaries/' + latest_update + '/passiveAggressive.pkl')
+randomForest = joblib.load('binaries/' + latest_update + '/randomForest.pkl')
+adaBoost = joblib.load('binaries/' + latest_update + '/adaBoost.pkl')
+bagging = joblib.load('binaries/' + latest_update + '/bagging.pkl')
 
-predictors = {'ridge':ridge, 'nearestCentroid':nearestCentroid, 'L2SVC':L2SVC, 'BNB':BNB, 'knn':knn, 'perceptron':perceptron, 'pipeline':pipeline, 'L2SGD':L2SGD, 'elasticNet':elasticNet, 'L1SVC':L1SVC, 'MNB':MNB, 'L1SGD':L1SGD, 'passiveAggressive':passiveAggressive, 'randomForest':randomForest}
+predictors = {'ridge':ridge, 'logit':logit, 'nearestCentroid':nearestCentroid, 'L2SVC':L2SVC, 'BNB':BNB, 'knn':knn, 'perceptron':perceptron, 'pipeline':pipeline, 'L2SGD':L2SGD, 'elasticNet':elasticNet, 'L1SVC':L1SVC, 'MNB':MNB, 'L1SGD':L1SGD, 'passiveAggressive':passiveAggressive, 'randomForest':randomForest, 'adaBoost':adaBoost, 'bagging':bagging}
 
 predictionList = []
 for i in range(0, len(solicitations)):
@@ -59,7 +63,7 @@ for item in predictionList:
     predictionText.append(item['text'])
 
 print('vectorizing text')
-vec = joblib.load('binaries/vectorizer.pkl')
+vec = joblib.load('binaries/' + latest_update + '/vectorizer.pkl')
 
 predictionVector = vec.transform(predictionText)
 
@@ -86,4 +90,11 @@ for i in predictionList:
 
 formatted = classes.formattedPredictionOutput(raw, solicitations)
 
-dataHandling.writeJson(formatted.finalOutput, 'predictions/predictions_' + str(rawData.date) + '.json')
+from pymongo import MongoClient
+from datetime import datetime, timedelta
+
+client = MongoClient()
+db = client.FBO_Test
+collection = db.test_collection
+insertion = {'date':(datetime.today() - timedelta(days=1)).strftime("%Y%m%d"), 'report' = formatted.finalOutput}
+collection.insert_one(insertion)

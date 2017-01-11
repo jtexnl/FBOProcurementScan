@@ -25,6 +25,7 @@ import string
 import shutil
 import certifi
 from urllib3.exceptions import SSLError
+from requests.exceptions import ConnectionError
 
 class dailySolicitationListing():
     #The daily solicitation listing class is used to open the json file from fedbizopps. 
@@ -143,12 +144,23 @@ http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 class solicitation_documents():
     #This class is intended to replace the old newSolicitation() class with a more efficient document fetching utility
 
-    def __init__(self, url, solNum):
-        self.url = url
-        self.doc = pq(url)
+    def __init__(self, rawField):
+        self.metaData = self.build_metaData(rawField)
+        self.url = self.metaData['listing_url']
+        self.doc = pq(self.url)
         self.document_links = self.find_document_links(self.doc)
         self.document_status_initial = self.download_documents(self.document_links, solNum)
         self.doc_text, self.document_status_final = self.read_and_parse(self.document_status_initial, solNum)
+        self.final_output = self.build_final_output(self.metaData, self.doc_text, self.document_status_final)
+
+    def build_metaData(self, rawField):
+        output = {}
+        for field in ['title', 'notice_type', 'is_mod', 'close_dt', 'office', 'posted_dt', 'agency', 'listing_url']:
+            if field in rawField:
+                output[field] = rawField[field]
+            else:
+                output[field] = 'not listed'
+        return output
 
     def find_document_links(self, doc):
         #takes a pyquery object, finds the links, and outputs them as a list. 
@@ -195,6 +207,8 @@ class solicitation_documents():
                                 document_status['documents_downloaded'] = ['Failed to Load']
                         except SSLError:
                             document_status['documents_downloaded'] = ['Insecure Redirect: Unable to Download']
+                        except ConnectionError:
+                            document_status['documents_downloaded'] = ['Connection Failed']
             else:
                 document_status['documents_downloaded'] = ['No Document Links Found']
         return document_status
@@ -228,6 +242,12 @@ class solicitation_documents():
         document_status['parsing_report'] = parsing_report
         return output, document_status
 
+    def build_final_output(self, metaData, doc_text, document_status_final):
+        finalOutput = metaData
+        finalOutput['document_text'] = doc_text
+        finalOutput['document_status'] = document_status_final
+        return finalOutput
+
 class formattedPredictionOutput():
     #This class combines the information from the raw json FBO data with the predictor outputs and returns
     #a dictionary that can be easily written to json.
@@ -242,7 +262,8 @@ class formattedPredictionOutput():
         self.finalOutput = self.combine_information()
 
     def load_accuracy_dict(self):
-        with open('accuracy_scores/modelAccuracy.json', 'rU') as infile:
+        latest_update = open('latest_update.txt').read()
+        with open('accuracy_scores/accuracyDict_' + latest_update + '.json', 'rU') as infile:
             data = json.load(infile)
         return data
 
@@ -256,8 +277,6 @@ class formattedPredictionOutput():
             for item in valueList:
                 if item == 0:
                     scores.append('RED')
-                elif item == 1:
-                    scores.append('YELLOW')
                 else:
                     scores.append('GREEN')
             subDict['scores'] = scores
@@ -283,7 +302,7 @@ class formattedPredictionOutput():
                     grades[row[0]] += row[1]
                 else:
                     grades[row[0]] = row[1]
-            possibleGrades = ['RED', 'GREEN', 'YELLOW']
+            possibleGrades = ['RED', 'GREEN']
             for grade in possibleGrades:
                 if grade in grades.keys():
                     continue
@@ -300,7 +319,7 @@ class formattedPredictionOutput():
         for i in range(0, len(self.solicitationList)):
             subDict = {}
             subDict['url'] = self.solicitationList[i].url
-            subDict['agency'] = self.solicitationList[i].agency
+            #subDict['agency'] = self.solicitationList[i].agency
             subDict['predictions'] = self.gradesBySolicitation[i]
             finalOutput.append(subDict)
         return finalOutput
