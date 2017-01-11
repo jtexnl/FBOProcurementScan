@@ -147,15 +147,16 @@ class solicitation_documents():
     def __init__(self, rawField):
         self.metaData = self.build_metaData(rawField)
         self.url = self.metaData['listing_url']
+        self.solNum = self.metaData['solnbr']
         self.doc = pq(self.url)
         self.document_links = self.find_document_links(self.doc)
-        self.document_status_initial = self.download_documents(self.document_links, solNum)
+        self.document_status_initial = self.download_documents(self.document_links, self.solNum)
         self.doc_text, self.document_status_final = self.read_and_parse(self.document_status_initial, solNum)
         self.final_output = self.build_final_output(self.metaData, self.doc_text, self.document_status_final)
 
     def build_metaData(self, rawField):
         output = {}
-        for field in ['title', 'notice_type', 'is_mod', 'close_dt', 'office', 'posted_dt', 'agency', 'listing_url']:
+        for field in ['title', 'notice_type', 'is_mod', 'close_dt', 'office', 'posted_dt', 'agency', 'listing_url', 'solnbr']:
             if field in rawField:
                 output[field] = rawField[field]
             else:
