@@ -272,7 +272,7 @@ class formattedPredictionOutput():
         newDict = {}
         for key in list(self.accuracyDict['avg'].keys()):
             subDict = {}
-            subDict['accuracy'] = self.accuracyDict[key]
+            subDict['accuracy'] = self.accuracyDict['avg'][key]
             valueList = list(rawPredictions[key])
             scores = []
             for item in valueList:
