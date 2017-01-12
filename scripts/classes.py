@@ -27,6 +27,7 @@ import certifi
 from urllib3.exceptions import SSLError
 from urllib3.exceptions import MaxRetryError
 from requests.exceptions import ConnectionError
+requests.packages.urllib3.exceptions import ProtocolError
 
 class dailySolicitationListing():
     #The daily solicitation listing class is used to open the json file from fedbizopps. 
@@ -212,6 +213,8 @@ class solicitation_documents():
                         except ConnectionError:
                             document_status['documents_downloaded'] = ['Connection Failed']
                         except MaxRetryError:
+                            document_status['documents_downloaded'] = ['Connection Failed']
+                        except:
                             document_status['documents_downloaded'] = ['Connection Failed']
             else:
                 document_status['documents_downloaded'] = ['No Document Links Found']
