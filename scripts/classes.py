@@ -25,6 +25,7 @@ import string
 import shutil
 import certifi
 from urllib3.exceptions import SSLError
+from urllib3.exceptions import MaxRetryError
 from requests.exceptions import ConnectionError
 
 class dailySolicitationListing():
@@ -209,6 +210,8 @@ class solicitation_documents():
                         except SSLError:
                             document_status['documents_downloaded'] = ['Insecure Redirect: Unable to Download']
                         except ConnectionError:
+                            document_status['documents_downloaded'] = ['Connection Failed']
+                        except MaxRetryError:
                             document_status['documents_downloaded'] = ['Connection Failed']
             else:
                 document_status['documents_downloaded'] = ['No Document Links Found']
