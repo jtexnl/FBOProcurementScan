@@ -27,7 +27,6 @@ import certifi
 from urllib3.exceptions import SSLError
 from urllib3.exceptions import MaxRetryError
 from requests.exceptions import ConnectionError
-requests.packages.urllib3.exceptions import ProtocolError
 
 class dailySolicitationListing():
     #The daily solicitation listing class is used to open the json file from fedbizopps. 
