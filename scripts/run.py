@@ -90,6 +90,8 @@ for i in predictionList:
 
 formatted = classes.formattedPredictionOutput(raw, solicitations)
 
+dataHandling.writeJson(formatted.finalOutput, 'predictions_' + (datetime.today() - timedelta(days=1)).strftime("%Y%m%d") + '.json')
+"""
 from pymongo import MongoClient
 from datetime import datetime, timedelta
 
@@ -98,3 +100,4 @@ db = client.FBO_Test
 collection = db.test_collection
 insertion = {'date':(datetime.today() - timedelta(days=1)).strftime("%Y%m%d"), 'report' = formatted.finalOutput}
 collection.insert_one(insertion)
+"""
