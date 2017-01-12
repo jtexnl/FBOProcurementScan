@@ -91,6 +91,7 @@ def kfolds_split(inputDict, numFolds):
     return np.array_split(indexArray, numFolds)
 
 def test_model_accuracy(splits, dataSet):
+    #TODO: Add comments to this block especially
     results = {}
     for i in range(0, len(splits)):
         test_index = splits[i]
