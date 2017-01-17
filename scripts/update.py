@@ -28,8 +28,8 @@ if __name__ == '__main__':
     #vectorize the whole dataset and train the algorithms on the full dataset
     y = dataDict['target']
     vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5, stop_words='english')
-    joblib.dump(vectorizer, 'binaries/' + today + '/vectorizer.pkl')
     X = vectorizer.fit_transform(dataDict['data'])
+    joblib.dump(vectorizer, 'binaries/' + today + '/vectorizer.pkl')
     #dump the algorithms and vectorizer for re-use in prediction
     for i, clf in enumerate(classifiers):
         clf.fit(X,y)
