@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.externals import joblib
 import numpy as np
 import json
+from datetime import datetime, strftime
 
 #Run the bash script to pull the most recent FBO Data Dump
 os.system('bash pull/fbo-nightly.sh')
