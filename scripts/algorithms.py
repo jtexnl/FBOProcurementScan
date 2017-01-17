@@ -14,6 +14,7 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, Bagging
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_selection import SelectFromModel
 
+#The model parameters are stored in this area
 ridge = RidgeClassifier(alpha = 2, solver = "sag")
 logit = LogisticRegression(solver = "sag")
 perceptron = Perceptron(n_iter = 50)
